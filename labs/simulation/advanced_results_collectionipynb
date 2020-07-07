@@ -52,7 +52,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": 5,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -70,6 +70,7 @@
     "        \n",
     "        #the mean number queuing for service\n",
     "        self.mean_queue_length = 0.0\n",
+    "        self.mean_queue = 0.0\n",
     "        \n",
     "        #mean service\n",
     "        self.mean_in_service = 0.0\n",
@@ -82,6 +83,8 @@
     "        #update the mean queue length\n",
     "        self.mean_queue_length = ((self.n - 1) / float(self.n)) * \\\n",
     "            self.mean_queue_length + (1 / float(self.n)) * len(self.queue)\n",
+    "        \n",
+    "        self.mean_queue += (len(self.queue) - self.mean_queue) / self.n\n",
     "        \n",
     "        #update the mean in service\n",
     "        self.mean_in_service = ((self.n - 1) / float(self.n)) * \\\n",
