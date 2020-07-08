@@ -11,5 +11,6 @@
 
 ## Computer simulation exercises
 
-1. Introduction to SimPy
+1. Introduction to SimPy [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/simulation_lab1_STUDENT.ipynb)
+* optional: Advanced methods for results collection [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/advanced_results_collection.ipynb)
 2. 
