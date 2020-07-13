@@ -7,6 +7,7 @@ numpy random number generator
 """
 import numpy as np
 from abc import ABC, abstractmethod
+import math
 
 class Distribution(ABC):
     '''
@@ -159,7 +160,7 @@ class Discrete(Distribution):
             raise ValueError('Elements and probilities arguments must be of the same length')
             
     def validate_probs(self, probs):
-        if(sum(probs) != 1):
+        if not math.isclose(sum(probs), 1.0):
             raise ValueError('Probabilities must sum to 1')
         
     def sample(self, size=None):
