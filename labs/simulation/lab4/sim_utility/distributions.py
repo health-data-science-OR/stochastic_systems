@@ -124,6 +124,40 @@ class Exponential(Distribution):
         return self.rand.exponential(self.mean, size=size)
     
 
+class Poisson(Distribution):
+    '''
+    Convenience class for the poisson distribution.
+    packages up distribution parameters, seed and random generator.
+    '''
+    def __init__(self, mean, random_seed=None):
+        '''
+        Constructor
+        
+        Params:
+        ------
+        mean: float
+            The mean of the poisson distribution
+        
+        random_seed: int, optional (default=None)
+            A random seed to reproduce samples.  If set to none then a unique
+            sample is created.
+        '''
+        self.rand = np.random.default_rng(seed=random_seed)
+        self.mean = mean
+        
+    def sample(self, size=None):
+        '''
+        Generate a sample from the poisson distribution
+        
+        Params:
+        -------
+        size: int, optional (default=None)
+            the number of samples to return.  If size=None then a single
+            sample is returned.
+        '''
+        return self.rand.poisson(self.mean, size=size)
+    
+
 class Triangular(Distribution):
     '''
     Convenience class for the triangular distribution.
