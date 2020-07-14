@@ -9,6 +9,25 @@ import numpy as np
 from abc import ABC, abstractmethod
 import math
 
+def generate_seed_vector(one_seed_to_rule_them_all=42, size=20):
+    '''
+    Return a controllable numpy array
+    of integer seeds to use in simulation model.
+    
+    Values are between 1000 and 10^10
+    
+    Params:
+    ------
+    one_seed_to_rule_them_all: int, optional (default=42)
+        seed to produce the seed vector
+        
+    size: int, optional (default=20)
+        length of seed vector
+    '''
+    rng = np.random.default_rng(seed=one_seed_to_rule_them_all)
+    return rng.integers(low=1000, high=10**10, size=size)
+
+
 class Distribution(ABC):
     '''
     Distribution interface
@@ -199,4 +218,5 @@ class Discrete(Distribution):
         
     def sample(self, size=None):
         return self.elements[np.digitize(self.rng.random(size), self.cum_probs)]
-        
+
+    
