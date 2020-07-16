@@ -45,24 +45,42 @@ class ScenarioArgs():
     '''
     Arguments represent a configuration of the simulation model.
     '''
-    def __init__(self, run_length, warm_up=0.0, seeds=None): 
+    def __init__(self, run_length, warm_up=0.0, pooling=False, prop_carve_out=0.15,
+                 demand_file=None, slots_file=None, pooling_file=None, 
+                 seeds=None): 
         
         if seeds is None:
             self.seeds = [None for i in range(100)]
         else:
             self.seeds = seeds
         
+        #use default files?
+        if pooling_file is None:
+            pooling_file = 'data/partial_pooling.csv'
+        
+        if demand_file is None:
+            demand_file = 'data/referrals.csv'
+            
+        if slots_file is None:
+            slots_file = 'data/shifts.csv'
+        
+        #useful if you want to record anything during a model run.
         self.debug = []
         
+        #run length and warm up period
         self.run_length = run_length
         self.warm_up_period = warm_up
-        self.pooling = False
         
-        self.clinic_demand = pd.read_csv('data/referrals.csv')
-        self.weekly_slots = pd.read_csv('data/shifts.csv')
-
-        #used to reduce runtime from pandas overhead
-        self.pooling_np = pd.read_csv('data/partial_pooling.csv').to_numpy().T[1:].T
+        #should we pool clinics?
+        self.pooling = pooling
+        
+        #proportion of carve out used
+        self.prop_carve_out = prop_carve_out
+        
+        #input data from files
+        self.clinic_demand = pd.read_csv(demand_file)
+        self.weekly_slots = pd.read_csv(slots_file)
+        self.pooling_np = pd.read_csv(pooling_file).to_numpy().T[1:].T
         
         #These represent the 'diaries' of bookings
         
@@ -99,7 +117,7 @@ class ScenarioArgs():
     def create_carve_out(self, run_length, capacity_template):
 
         #proportion of total capacity carved out for high priority patients
-        priority_template = (capacity_template * PROP_CARVE_OUT).round().astype(np.uint8)    
+        priority_template = (capacity_template * self.prop_carve_out).round().astype(np.uint8)    
             
         priority_slots = priority_template.copy()
         
@@ -113,7 +131,7 @@ class ScenarioArgs():
     
     def create_slots(self, run_length, capacity_template):
         
-        priority_template = (capacity_template * PROP_CARVE_OUT).round().astype(np.uint8)  
+        priority_template = (capacity_template * self.prop_carve_out).round().astype(np.uint8)  
         open_template = capacity_template - priority_template       
         available_slots = open_template.copy()
         
@@ -142,14 +160,12 @@ class ScenarioArgs():
         return bookings
     
     
-class LowPriorityPooledBookerNumPy():
+class LowPriorityPooledBooker():
     '''
     Low prioity booking process for POOLED clinics.
     
     Low priority patients only have access to public slots and have a minimum
     waiting time (e.g. 3 days before a slot can be used.)
-    
-    NUMPY IMPLEMENTATION.
     '''
     def __init__(self, args):
         self.args = args
@@ -160,6 +176,8 @@ class LowPriorityPooledBookerNumPy():
     def find_slot(self, t, clinic_id):
         '''
         Finds a slot in a diary of available slot
+        
+        NUMPY IMPLEMENTATION.
 
         Params:
         ------
@@ -168,6 +186,11 @@ class LowPriorityPooledBookerNumPy():
 
         clinic_id: int
             home clinic id is the index  of the clinic column in diary
+            
+        Returns:
+        -------
+        (int, int)
+        (best_t, best_clinic_id)
 
         '''
         #to reduce runtime - drop down to numpy...
@@ -185,8 +208,8 @@ class LowPriorityPooledBookerNumPy():
         #get the index of the best clinic option.
         best_clinic_idx = clinic_options[clinic_slots[best_t, :] > 0][0]
         
-        #return (waiting_time, clinic_id)
-        return best_t + self.min_wait, best_clinic_idx
+        #return (best_t, booked_clinic_id)
+        return best_t + self.min_wait + t, best_clinic_idx
     
     
     def book_slot(self, booking_t, clinic_id):
@@ -210,7 +233,7 @@ class LowPriorityPooledBookerNumPy():
         #one more patient waiting
         self.args.bookings.iat[booking_t, clinic_id] += 1
         
-class HighPriorityBookerNumPy():
+class HighPriorityBooker():
     '''
     High prioity booking process
     
@@ -246,6 +269,11 @@ class HighPriorityBookerNumPy():
 
         clinic_id: int
             clinic id is the index  of the clinic column in diary
+            
+        Returns:
+        -------
+        (int, int)
+        (best_t, best_clinic_id)
         '''    
         
         #to reduce runtime - maybe...
@@ -262,8 +290,8 @@ class HighPriorityBookerNumPy():
         #total slots
         clinic_slots = priority_slots + public_slots
     
-        #find closest day with 1 or more slots + booked clinic
-        return np.argmax(clinic_slots > 0) + self.min_wait, clinic_id
+        #(best_t, best_clinic_id)
+        return np.argmax(clinic_slots > 0) + self.min_wait + t, clinic_id
     
     def book_slot(self, booking_t, clinic_id):
         '''
@@ -292,9 +320,9 @@ class HighPriorityBookerNumPy():
 
         #one more booking...
         self.args.bookings.iat[booking_t, clinic_id] += 1
-        
-        
-class LowPriorityBookerNumPy():
+            
+
+class LowPriorityBooker():
     '''
     Low prioity booking process
     
@@ -318,17 +346,19 @@ class LowPriorityBookerNumPy():
         clinic_id: int
             clinic id is the index  of the clinic column in diary
 
-        min_wait: int
-            minimum number days a patient must wait before attending a booking
+        Returns:
+        -------
+        (int, int)
+        (best_t, best_clinic_id)
         '''
-        #to reduce runtime - maybe...
+        #to reduce runtime drop from pandas to numpy
         available_slots_np = self.args.available_slots.to_numpy()
                 
         #get the clinic slots t+min_wait forward for the pooled clinics
         clinic_slots = available_slots_np[t+self.min_wait:, clinic_id]
         
-        #find closest day with 1 or more slots + booked clinic
-        return np.argmax(clinic_slots > 0) + self.min_wait, clinic_id
+        # return (best_t, best_clinic_id)
+        return np.argmax(clinic_slots > 0) + self.min_wait + t, clinic_id
     
     
     def book_slot(self, booking_t, clinic_id):
@@ -352,7 +382,91 @@ class LowPriorityBookerNumPy():
         #one more patient waiting
         self.args.bookings.iat[booking_t, clinic_id] += 1
         
+        
+class HighPriorityPooledBooker():
+    '''
+    High prioity booking process for POOLED clinics.
+    
+    High priority patients have access to public and reserved 
+    slots and have a minimum waiting time (e.g. 1 days before a 
+    slot can be used.)
+    '''
+    def __init__(self, args):
+        self.args = args
+        self.min_wait = 1
+        self.priority = 2
+        
+        
+    def find_slot(self, t, clinic_id):
+        '''
+        Finds a slot in a diary of available slot
+        
+        NUMPY IMPLEMENTATION.
 
+        Params:
+        ------
+        t: int,
+            time t in days
+
+        clinic_id: int
+            home clinic id is the index  of the clinic column in diary
+            
+        Returns:
+        -------
+        (int, int)
+        (best_t, best_clinic_id)
+
+        '''
+        #to reduce runtime - drop down to numpy...
+        available_slots_np = self.args.available_slots.to_numpy()
+        carve_out_slots_np = self.args.carve_out_slots.to_numpy()
+                
+        #get the clinics that are pooled with this one.
+        clinic_options = np.where(self.args.pooling_np[clinic_id] == 1)[0]
+        
+        #get the clinic slots t+min_wait forward for the pooled clinics
+        public_slots = available_slots_np[t+self.min_wait:, clinic_options]
+        priority_slots = carve_out_slots_np[t+self.min_wait:, clinic_options]
+        
+        #total slots
+        clinic_slots = priority_slots + public_slots
+                
+        #get the earliest day number (its the name of the series)
+        best_t = np.where((clinic_slots.sum(axis=1) > 0))[0][0]
+        
+        #get the index of the best clinic option.
+        best_clinic_idx = clinic_options[clinic_slots[best_t, :] > 0][0]
+        
+        #return (best_t, best_clinic_id)
+        return best_t + self.min_wait + t, best_clinic_idx
+    
+    
+    def book_slot(self, booking_t, clinic_id):
+        '''
+        Book a slot on day t for clinic c
+
+        A slot is removed from args.available_slots
+        A appointment is recorded in args.bookings.iat
+
+        Params:
+        ------
+        booking_t: int
+            Day of booking
+
+        clinic_id: int
+            the clinic identifier
+        '''
+        #take carve out slot first
+        if self.args.carve_out_slots.iat[booking_t, clinic_id] > 0:
+            self.args.carve_out_slots.iat[booking_t, clinic_id] -= 1
+        else:
+            #one less public available slot
+            self.args.available_slots.iat[booking_t, clinic_id] -= 1
+
+        #one more booking...
+        self.args.bookings.iat[booking_t, clinic_id] += 1
+        
+        
 class PatientReferral(object):
     '''
     Patient referral process
@@ -369,33 +483,40 @@ class PatientReferral(object):
         self.booked_clinic = home_clinic
         self.booker = booker
                 
-        #metrics 
+        #performance metrics 
         self.waiting_time = None
     
     @property
     def priority(self):
+        '''
+        Return the priority of the patient booking
+        '''
         return self.booker.priority
     
-    def assess(self):
-        #1. book slot at appropriate clinic
-        #2. sample DNA
-        #3. schedule the process to complete at that time.
+    def execute(self):
+        '''
+        Patient is referred to clinic
         
+        1. find earliest slot within rules
+        2. book slot at clinic
+        3. schedule process to complete at that time
+        '''
         #get slot for clinic
-        waiting_time, self.booked_clinic = \
+        best_t, self.booked_clinic = \
             self.booker.find_slot(self.referral_t, self.home_clinic)
         
         #book slot at clinic = time of referral + waiting_time
-        self.booker.book_slot(waiting_time + self.referral_t, 
-                              self.booked_clinic)
-
+        self.booker.book_slot(best_t, self.booked_clinic)
+            
         #wait for appointment
-        yield self.env.timeout(waiting_time)
+        yield self.env.timeout(best_t - self.referral_t)
         
-        self.waiting_time = waiting_time
+        # measure waiting time on day of appointment
+        #(could also record this before appointment, but leaving until 
+        #afterwards allows modifications where patients can be moved)
+        self.waiting_time = best_t - self.referral_t
         
 
-        
 class AssessmentReferralModel(object):
     '''
     Implements the Mental Wellbeing and Access 'Assessment Referral'
@@ -435,16 +556,15 @@ class AssessmentReferralModel(object):
         Conduct a single run of the simulation model.
         '''
         self.env.run(self.args.run_length)
-        self._process_run_results()
+        self.process_run_results()
     
     def generate_arrivals(self):
         '''
-        
         Time slicing simulation.  The model steps forward by a single
         day and simulates the number of arrivals from a Poisson
         distribution.  The following process is then applied.
         
-        1. Sample the region of the referral
+        1. Sample the region of the referral from a Poisson distribution
         2. Triage - is an appointment made for the patient or are they referred
         to another service?
         3. A referral process is initiated for the patient.
@@ -473,29 +593,37 @@ class AssessmentReferralModel(object):
                     high_priority = self.args.priority_dist.sample()
                 
                     if high_priority == 1:
-                        booker = HighPriorityBookerNumPy(self.args)
-                    else:
+                        #different policy if pooling or not
                         if self.args.pooling:
-                            booker = LowPriorityPooledBookerNumPy(self.args)
+                            booker = HighPriorityPooledBooker(self.args)
                         else:
-                            booker = LowPriorityBookerNumPy(self.args)
+                            booker = HighPriorityBooker(self.args)
+                    else:
+                        #different policy if pooling or not
+                        if self.args.pooling:
+                            booker = LowPriorityPooledBooker(self.args)
+                        else:
+                            booker = LowPriorityBooker(self.args)
                 
-                    #create referral to that clinic
+                    #create instance of PatientReferral
                     patient = PatientReferral(self.env, self.args, t, 
                                               clinic_id, booker)
                     
                     #start a referral assessment process for patient.
-                    self.env.process(patient.assess())
+                    self.env.process(patient.execute())
                                         
                     #only collect results after warm-up complete
                     if self.env.now > self.args.warm_up_period:
-                        #store patient for calculating waiting time stats at end.
+                        #store patient for calculating waiting time stats at end
                         self.referrals.append(patient)
             
             #timestep by one day
             yield self.env.timeout(1)
             
-    def _process_run_results(self):
+    def process_run_results(self):
+        '''
+        Produce summary results split by priority...
+        '''
         
         results_all = [p.waiting_time for p in self.referrals 
                if not p.waiting_time is None]
@@ -511,8 +639,8 @@ class AssessmentReferralModel(object):
         self.results_high = results_high
         
 
+        
             
-
             
 def results_summary(results_all, results_low, results_high):
     '''
