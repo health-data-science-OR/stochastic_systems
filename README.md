@@ -13,4 +13,9 @@
 
 1. Introduction to SimPy [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/simulation_lab1_STUDENT.ipynb)
 * optional: Advanced methods for results collection [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/advanced_results_collection.ipynb)
-2. 
+
+2. Input modelling exercises
+
+3. Modelling time dependent arrivals
+
+4. Modelling health systems with a scheduling function.
