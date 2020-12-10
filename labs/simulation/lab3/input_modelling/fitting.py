@@ -37,16 +37,9 @@ def auto_fit(data_to_fit, hist=False, pp=False, dist_names=None):
     percentile_bins = np.linspace(0,100,50)
     percentile_cutoffs = np.percentile(y_std, percentile_bins)
     
-    try:
-        observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
-        print(percentile_bins)
-        print(bins)
-        print(np.array_equal(bins, percentile_bins))
-        print(percentile_bins.shape)
-        print(bins.shape)
-    except ValueError:
-        #doesn't like 50 bins so use default values
-        observed_frequency, bins = (np.histogram(y_std))
+    #"fix": sometimes np.percentile produces cut-off that are not sorted!?  
+    #Why?  The test data was synthetic LoS in an ED and they are rounded numbers...
+    observed_frequency, bins = (np.histogram(y_std, bins=np.sort(percentile_cutoffs)))
     cum_observed_frequency = np.cumsum(observed_frequency)
 
     # Loop through candidate distributions
