@@ -36,7 +36,17 @@ def auto_fit(data_to_fit, hist=False, pp=False, dist_names=None):
     # Observed data will be approximately evenly distrubuted aross all bins
     percentile_bins = np.linspace(0,100,50)
     percentile_cutoffs = np.percentile(y_std, percentile_bins)
-    observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
+    
+    try:
+        observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
+        print(percentile_bins)
+        print(bins)
+        print(np.array_equal(bins, percentile_bins))
+        print(percentile_bins.shape)
+        print(bins.shape)
+    except ValueError:
+        #doesn't like 50 bins so use default values
+        observed_frequency, bins = (np.histogram(y_std))
     cum_observed_frequency = np.cumsum(observed_frequency)
 
     # Loop through candidate distributions
