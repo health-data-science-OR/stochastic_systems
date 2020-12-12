@@ -18,6 +18,7 @@ conda activate hds_stoch
 ## Computer simulation exercises
 
 1. Introduction to SimPy [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/simulation_lab1_STUDENT.ipynb)
+
 * optional: Advanced methods for results collection [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/advanced_results_collection.ipynb)
 
 2. Modelling more complex health systems [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab2/simpy_lab2.ipynb)
@@ -29,7 +30,6 @@ conda activate hds_stoch
     3.2 A&E data wrangling and input modelling [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab3/sim_lab3_input_modelling.ipynb)
 
 4. Modelling time dependent arrivals [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab4/sim_lab4_nspp.ipynb)
-
 
 5. Case study: modelling health systems with a scheduling function. [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab5/sim_lab5_scheduling_models_STUDENT.ipynb)
 
