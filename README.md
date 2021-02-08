@@ -42,7 +42,7 @@ conda activate hds_stoch
 
 ## Solutions to exercises:
 
-1. Introduction to SimPy [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/simulation_lab1_SOLUTIONS.ipynb)
+1. Introduction to SimPy [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/SOLUTIONS/simulation_lab1_SOLUTIONS.ipynb)
 
 
 2. Modelling more complex health systems [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab2/simpy_lab2_SOLUTIONS.ipynb)
