@@ -12,7 +12,7 @@ Uniform
 import numpy as np
 import math
 
-class Exponential():
+class Exponential:
     '''
     Convenience class for the exponential distribution.
     packages up distribution parameters, seed and random generator.
@@ -46,7 +46,7 @@ class Exponential():
         return self.rand.exponential(self.mean, size=size)
 
 
-class Lognormal(object):
+class Lognormal:
     """
     Encapsulates a lognormal distirbution
     """
@@ -90,7 +90,7 @@ class Lognormal(object):
         return self.rand.lognormal(self.mu, self.sigma)
 
 
-class Triangular():
+class Triangular:
     '''
     Convenience class for the triangular distribution.
     packages up distribution parameters, seed and random generator.
@@ -105,7 +105,7 @@ class Triangular():
         return self.rand.triangular(self.low, self.mode, self.high, size=size)
     
 
-class Bernoulli():
+class Bernoulli:
     '''
     Convenience class for the Bernoulli distribution.
     packages up distribution parameters, seed and random generator.
@@ -139,7 +139,7 @@ class Bernoulli():
         return self.rand.binomial(n=1, p=self.p, size=size)
 
 
-class Uniform():
+class Uniform:
     '''
     Convenience class for the Bernoulli distribution.
     packages up distribution parameters, seed and random generator.
