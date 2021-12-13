@@ -27,11 +27,11 @@ from hds_simpy.models.distributions import (Exponential, Triangular, Uniform,
 
 #declare constants for module...
 
-#DEFAULT RESOURCES
+# DEFAULT RESOURCES
 N_OPERATORS = 13
 N_NURSES = 11
 
-#default parameters for distributions
+# default parameters for distributions
 ARRIVAL_RATE = 100
 MEAN_IAT = 60 / ARRIVAL_RATE
 CALL_LOW = 5
@@ -41,24 +41,24 @@ P_CALLBACK = 0.4
 NURSE_LOW = 10
 NURSE_HIGH = 20
 
-#Should we show a trace of simulated events?
+# Should we show a trace of simulated events?
 TRACE = False
 
-#default random number SET
+# default random number SET
 DEFAULT_RNG_SET = None
 N_STREAMS = 10
 
-#scheduled audit intervals in minutes.
+# scheduled audit intervals in minutes.
 AUDIT_FIRST_OBS = 10
 AUDIT_OBS_INTERVAL = 5
 
-#default results collection period
+# default results collection period
 DEFAULT_RESULTS_COLLECTION_PERIOD = 1440
 
-#default number of replications
+# default number of replications
 DEFAULT_N_REPS = 5
 
-#warmup auditing
+# warmup auditing
 DEFAULT_WARMUP_AUDIT_INTERVAL = 120
 
 def trace(msg):
@@ -76,7 +76,7 @@ def trace(msg):
         print(msg)
 
 
-class Scenario(object):
+class Scenario:
     '''
     Parameter class for 111 simulation model
     '''
@@ -91,14 +91,14 @@ class Scenario(object):
             random numbers used in the model.
 
         '''
-        #resource counts
+        # resource counts
         self.n_operators = N_OPERATORS
         self.n_nurses = N_NURSES
 
-        #warm-up
+        # warm-up
         self.warm_up = 0.0
 
-        #sampling
+        # sampling
         self.random_number_set = random_number_set
         self.init_sampling()
     
@@ -120,12 +120,12 @@ class Scenario(object):
         Create the distributions used by the model and initialise 
         the random seeds of each.
         '''
-        #create random number streams
+        # create random number streams
         rng_streams = np.random.default_rng(self.random_number_set)
         self.seeds = rng_streams.integers(0, 999999999, size=N_STREAMS)
 
 
-        #create distributions
+        # create distributions
         self.arrival_dist = Exponential(MEAN_IAT, random_seed=self.seeds[0])
         self.call_dist = Triangular(CALL_LOW, CALL_MODE, CALL_HIGH, 
                                     random_seed=self.seeds[1])
@@ -134,10 +134,7 @@ class Scenario(object):
         self.callback_dist = Bernoulli(p=P_CALLBACK, random_seed=self.seeds[3])
         
         
-
-
-
-class Patient(object):
+class Patient:
     '''
     Encapsulates the process a patient caller undergoes when they dial 111
     and speaks to an operator who triages their call.
@@ -184,19 +181,19 @@ class Patient(object):
         2. phone triage (triangular)
         3. exit system
         '''
-        #record the time that call entered the queue
+        # record the time that call entered the queue
         start_wait = self.env.now
 
-        #request an operator 
+        # request an operator 
         with self.operators.request() as req:
             yield req
             
-            #record the waiting time for call to be answered
+            # record the waiting time for call to be answered
             self.waiting_time = self.env.now - start_wait
             trace(f'operator answered call {self.identifier} at '
                   + f'{self.env.now:.3f}')
             
-            #sample call duration.
+            # sample call duration.
             self.call_duration = self.call_dist.sample()
             yield self.env.timeout(self.call_duration)
             
@@ -263,21 +260,21 @@ class MonitoredPatient(Patient):
             observer.process_event(*args, **kwargs)
     
     def operator_service_complete(self):
-        #call the patients operator_service_complete method to execute logic
+        # call the patients operator_service_complete method to execute logic
         super().operator_service_complete()
         
-        #passes the patient (self) and a message
+        # passes the patient (self) and a message
         self.notify_observers(self, 'operator_service_complete')
             
     def nurse_service_complete(self):
-        #call the patients nurse_service_complete method to execute logic
+        # call the patients nurse_service_complete method to execute logic
         super().nurse_service_complete()
         
         #passes the patient (self) and a message
         self.notify_observers(self, 'nurse_service_complete')
 
 
-class UrgentCareCallCentre(object):
+class UrgentCareCallCentre:
     def __init__(self, args):
         self.env = simpy.Environment()
         self.args = args
@@ -330,10 +327,10 @@ class UrgentCareCallCentre(object):
             None
 
         '''
-        #setup the arrival process
+        # setup the arrival process
         self.env.process(self.arrivals_generator())
                 
-        #run
+        # run
         self.env.run(until=results_collection_period+warm_up)
         
     def arrivals_generator(self):
@@ -342,20 +339,20 @@ class UrgentCareCallCentre(object):
         '''
         for caller_count in itertools.count(start=1):
             
-            #iat
+            # iat
             inter_arrival_time = self.args.arrival_dist.sample()
             yield self.env.timeout(inter_arrival_time)
             
             trace(f'call {caller_count} arrives at: {self.env.now:.3f}')
             
-            #create monitored patient to update KPIs.
+            # create monitored patient to update KPIs.
             new_caller = MonitoredPatient(caller_count, self.env, self.args,
                                           self)
 
-            #store the patient
+            # store the patient
             self.patients.append(new_caller)
             
-            #start the patient service process
+            # start the patient service process
             self.env.process(new_caller.service())
 
     def process_event(self, *args, **kwargs):
@@ -417,11 +414,11 @@ class UrgentCareCallCentre(object):
         #print(self.wait_for_operator)
 
     def run_summary_frame(self):
-        #append to results df
+        # append to results df
         mean_waiting_time = self.wait_for_operator
         nurse_waiting_time = self.wait_for_nurse
 
-        #adjust util calculations for warmup period
+        # adjust util calculations for warmup period
         rc_period = self.env.now - self.args.warm_up
         util = self.operator_time_used / (rc_period * self.args.n_operators)
         nurse_util = self.nurse_time_used / (rc_period * self.args.n_nurses)
@@ -439,7 +436,7 @@ class UrgentCareCallCentre(object):
 
 
 
-class Auditor(object):
+class Auditor:
     def __init__(self, env, run_length=DEFAULT_RESULTS_COLLECTION_PERIOD,
                  first_obs=None, interval=None):
         '''
@@ -465,10 +462,10 @@ class Auditor(object):
         self.queues = []
         self.service = []
         
-        #dict to hold states
+        # dict to hold states
         self.metrics = {}
         
-        #scheduled the periodic audits
+        # scheduled the periodic audits
         if not first_obs is None:
             env.process(self.scheduled_observation())
             env.process(self.process_end_of_run())
@@ -491,7 +488,7 @@ class Auditor(object):
         and subsequent observations are spaced self.interval
         apart in time.
         '''
-        #delay first observation
+        # delay first observation
         yield self.env.timeout(self.first_observation)
         self.record_queue_length()
         self.record_calls_in_progress()
@@ -571,15 +568,15 @@ def single_run(scenario,
         results from single run.
     '''  
         
-    #set random number set - this controls sampling for the run.
+    # set random number set - this controls sampling for the run.
     scenario.set_random_no_set(random_no_set)
 
-    #create an instance of the model
+    # create an instance of the model
     model = UrgentCareCallCentre(scenario)
 
     model.run(results_collection_period=rc_period, warm_up=warm_up)
     
-    #run the model
+    # run the model
     results_summary = model.run_summary_frame()
     
     return results_summary
@@ -623,7 +620,7 @@ def multiple_replications(scenario,
                                   for rep in range(n_reps))
 
 
-    #format and return results in a dataframe
+    # format and return results in a dataframe
     df_results = pd.concat(res)
     df_results.index = np.arange(1, len(df_results)+1)
     df_results.index.name = 'rep'
@@ -664,7 +661,7 @@ class WarmupAuditor():
         -------
         None.
         '''
-        #set up data collection for warmup variables.
+        # set up data collection for warmup variables.
         self.env.process(self.audit_model())
         self.model.run(rc_period, 0)
         
@@ -675,14 +672,14 @@ class WarmupAuditor():
         for i in itertools.count():
             yield self.env.timeout(self.interval)
 
-            #Performance metrics
-            #calculate the utilisation metrics
+            # Performance metrics
+            # calculate the utilisation metrics
             util = self.model.operator_time_used / \
                 (self.env.now * self.model.args.n_operators)
             nurse_util = self.model.nurse_time_used / \
                 (self.env.now * self.model.args.n_nurses)
             
-            #store the metrics
+            # store the metrics
             self.wait_for_operator.append(self.model.wait_for_operator)
             self.wait_for_nurse.append(self.model.wait_for_nurse)
             self.operator_util.append(util)
@@ -732,20 +729,20 @@ def warmup_single_run(scenario, rc_period,
         (mean_time_in_system, mean_time_to_nurse, mean_time_to_triage,
          four_hours)
     '''        
-    #set random number set - this controls sampling for the run.
+    # set random number set - this controls sampling for the run.
     scenario.set_random_no_set(random_no_set)
 
-    #create an instance of the model
+    # create an instance of the model
     model = UrgentCareCallCentre(scenario)
 
-    #create warm-up model auditor and run
+    # create warm-up model auditor and run
     audit_model = WarmupAuditor(model, interval)
     audit_model.run(rc_period)
 
     return audit_model.summary_frame()
 
 
-#example solution
+# example solution
 def warmup_analysis(scenario, rc_period, n_reps=DEFAULT_N_REPS,
                     interval=DEFAULT_WARMUP_AUDIT_INTERVAL,
                     n_jobs=-1):
@@ -788,26 +785,26 @@ def warmup_analysis(scenario, rc_period, n_reps=DEFAULT_N_REPS,
                                                              interval=interval) 
                                   for rep in range(n_reps))
     
-    #format and return results
+    # format and return results
     metrics = {'operator_wait':[],
            'nurse_wait':[],
            'operator_util':[],
            'nurse_util':[]}
 
-    #preprocess results of each replication
+    # preprocess results of each replication
     for rep in res:
         metrics['operator_wait'].append(rep.operator_wait)
         metrics['nurse_wait'].append(rep.nurse_wait)
         metrics['operator_util'].append(rep.operator_util)
         metrics['nurse_util'].append(rep.nurse_util)
         
-    #cast to dataframe
+    # cast to dataframe
     metrics['operator_wait'] = pd.DataFrame(metrics['operator_wait']).T
     metrics['nurse_wait'] = pd.DataFrame(metrics['nurse_wait']).T
     metrics['operator_util'] = pd.DataFrame(metrics['operator_util']).T
     metrics['nurse_util'] = pd.DataFrame(metrics['nurse_util']).T
     
-    #index as obs number
+    # index as obs number
     metrics['operator_wait'].index = np.arange(1, 
                                                len(metrics['operator_wait'])+1)
     metrics['nurse_wait'].index = np.arange(1, len(metrics['nurse_wait'])+1)
@@ -815,13 +812,13 @@ def warmup_analysis(scenario, rc_period, n_reps=DEFAULT_N_REPS,
                                                len(metrics['operator_util'])+1)
     metrics['nurse_util'].index = np.arange(1, len(metrics['nurse_util'])+1)
 
-    #obs label
+    # obs label
     metrics['operator_wait'].index.name = "audit"
     metrics['nurse_wait'].index.name = "audit"
     metrics['operator_util'].index.name = "audit"
     metrics['nurse_util'].index.name = "audit"
     
-    #columns as rep number
+    # columns as rep number
     cols = [f'rep_{i}' for i in range(1, n_reps+1)]
     metrics['operator_wait'].columns = cols
     metrics['nurse_wait'].columns = cols
