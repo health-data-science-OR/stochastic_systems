@@ -1,18 +1,18 @@
-name: hds_stoch
+name: hds_stoch_2022
 channels:
-  - defaults
+  - conda-forge
 dependencies:
-  - joblib=0.15.1
-  - jupyterlab=2.1.5
-  - matplotlib=3.2.2
-  - nodejs=10.13.0
-  - numpy=1.18.5
-  - pandas=1.0.5
+  - joblib=1.1.0
+  - jupyterlab=3.2.4
+  - jupyterlab-spellchecker=0.7.2
+  - matplotlib=3.5.0
+  - numpy=1.21.4
+  - pandas=1.3.4
   - pip=20.1.1
-  - python=3.7.7
-  - scipy=1.5.0
-  - seaborn=0.10.0
+  - python=3.8.8
+  - scikit-learn=1.0.1
+  - scipy=1.7.3
+  - seaborn=0.11.1
   - pip:
-    - scikit-learn==0.23.0
     - simpy==4.0.1
 
