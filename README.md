@@ -1,9 +1,9 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/health-data-science-OR/stochastic_systems/HEAD)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4333664.svg)](https://doi.org/10.5281/zenodo.4333664)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/release/python-370+/)
+[![Python 3.7+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-370+/)
 
-# Making a difference with health data:
+# HPDM097 - Making a difference with health data:
 
 ## Stochastic Healthcare Systems
 
@@ -42,7 +42,7 @@ conda activate hds_stoch
 
 ## Solutions to exercises:
 
-1. Introduction to SimPy [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/SOLUTIONS/simulation_lab1_SOLUTIONS.ipynb)
+1. Introduction to SimPy [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab1/simulation_lab1_SOLUTIONS.ipynb)
 
 
 2. Modelling more complex health systems [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab2/simpy_lab2_SOLUTIONS.ipynb)
