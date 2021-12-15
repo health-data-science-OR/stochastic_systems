@@ -1,4 +1,4 @@
-name: hds_stoch_2022
+name: hds_stoch
 channels:
   - conda-forge
 dependencies:
