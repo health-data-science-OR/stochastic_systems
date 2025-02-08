@@ -4,6 +4,7 @@
 
 ## Added 
 
+* Repository essentials: change log + citation file.
 * Added new replications algorithm code (implementation of Hoad et al (2010) to Lab 6.
 
 ## Changed
