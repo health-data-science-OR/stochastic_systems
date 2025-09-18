@@ -9,6 +9,8 @@
 
 ## Changed
 * Libraries updated August 2024
+* sim-tools and jupyter-lab updated Sept 2025
+
 
 ## Fixed
 * Patched lab 1: `Dataframe.append()` is deprecated. Replaced with recommended `pd.concat()`
