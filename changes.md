@@ -1,5 +1,25 @@
 # Changes
 
+## V4.1.0
+
+### Added
+
+* Lab1: Added `urgent_care_sim.py` a full version of the model built in lab1 for students to browse and use.
+* Lab1: Added `urgent_care_sim.ipynb` a notebook to demo use of `urgent_care_sim.py`
+
+### Changed
+ 
+* Lab1: Added call centre image to exercise 9.
+* Lab 2: markdown tables for parameters combined into one
+* Lab 2: `Scenario` now accepts parameters set to default global constants.  A better design.
+* Lab 2: `get_scenario` modified to use new `Scenario` parameter passing format.
+
+### Fixed
+
+* Lab 1: fix of minor typos in markdown for solutions and students copy
+* Lab 1: fix of `Patient` and `UrgentCareCallCentre` classes to correctly reference member attribute `self.env`
+* Lab 2: parameters in problem description fixed to match the values used by the simulation model
+
 ## V4.0.0
 
 ## Added 
