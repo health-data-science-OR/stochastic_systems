@@ -15,4 +15,4 @@ dependencies:
   - scipy=1.14.0
   - seaborn=0.13.2
   - simpy=4.1.1
-  - sim-tools=0.10.0
+  - sim-tools=1.0.4
