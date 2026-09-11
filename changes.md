@@ -1,5 +1,16 @@
 # Changes
 
+## Unreleased
+
+## Changed
+
+* Lab 4: Optional exercise 4 now implements a pre-calculation of acceptance probabilities.
+* Lab 4: STUDENT: added missing exercise 3.
+
+## Fixed
+
+* Lab 4: SOLUTIONS fix of code to select correct `lambda_t` in thinning example.
+
 ## V4.1.0
 
 ### Added

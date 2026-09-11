@@ -2,17 +2,17 @@ name: hds_stoch
 channels:
   - conda-forge
 dependencies:
-  - joblib=1.4.2
-  - jupyterlab=4.4.7
+  - joblib=1.5.3
+  - jupyterlab=4.5.6
   - jupyterlab-plotly-extension=1.0.0
   - jupyterlab-spellchecker=0.8.4
-  - matplotlib=3.9.1
-  - numpy=2.0.1
-  - pandas=2.2.2
-  - pip=24.0
-  - python=3.11
-  - scikit-learn=1.5.1
-  - scipy=1.14.0
+  - matplotlib=3.10.8
+  - numpy=2.4.3
+  - pandas=2.3.3
+  - pip=26.0.1
+  - python=3.12
+  - scikit-learn=1.8.0
+  - scipy=1.17.1
   - seaborn=0.13.2
   - simpy=4.1.1
-  - sim-tools=0.10.0
+  - sim-tools=1.0.4
