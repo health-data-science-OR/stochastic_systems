@@ -1,11 +1,14 @@
 # Changes
 
-## Unreleased
+## v5.0.0 
+
+Released for 2026/27 cohort of students.
 
 ## Changed
 
 * Lab 4: Optional exercise 4 now implements a pre-calculation of acceptance probabilities.
 * Lab 4: STUDENT: added missing exercise 3.
+* Updated to latest version of sim-tools v1.3.0
 
 ## Fixed
 
