@@ -9,6 +9,7 @@ Released for 2026/27 cohort of students.
 * Lab 4: Optional exercise 4 now implements a pre-calculation of acceptance probabilities.
 * Lab 4: STUDENT: added missing exercise 3.
 * Updated to latest version of sim-tools v1.3.0
+* Lab 6: replications algorithm notebook now points at sim-tools documentation for applied example.
 
 ## Fixed
 
